@@ -1,0 +1,395 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+@custom-variant on-dark (&:where([data-tone="dark"], [data-tone="dark"] *):not(:where([data-tone="light"], [data-tone="light"] *)));
+
+@theme {
+  --animate-rise: rise 400ms var(--ease-standard) both;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+@utility font-condensed {
+  font-variation-settings: "wdth" 76;
+}
+
+@utility font-expanded {
+  font-variation-settings: "wdth" 125;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-ink-200);
+  }
+
+  body {
+    @apply bg-white font-body text-body text-ink-900 antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-green-700);
+    outline-offset: 2px;
+  }
+
+  [data-tone="dark"] :focus-visible {
+    outline-color: var(--color-green-500);
+  }
+
+  [data-tone="light"] :focus-visible {
+    outline-color: var(--color-green-700);
+  }
+
+  ::selection {
+    background: var(--color-green-200);
+    color: var(--color-ink-900);
+  }
+}
+
+@layer components {
+  .accordion-panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    visibility: hidden;
+    transition:
+      grid-template-rows 250ms var(--ease-standard),
+      visibility 0s linear 250ms;
+  }
+
+  .accordion-panel[data-open="true"] {
+    grid-template-rows: 1fr;
+    visibility: visible;
+    transition:
+      grid-template-rows 250ms var(--ease-standard),
+      visibility 0s;
+  }
+
+  .accordion-panel > * {
+    min-height: 0;
+  }
+
+  .prose-doc {
+    @apply max-w-measure;
+  }
+
+  .prose-doc > * + * {
+    @apply mt-5;
+  }
+
+  .prose-doc h2 {
+    @apply mt-12 font-display text-title font-extrabold uppercase font-condensed text-ink-900;
+  }
+
+  .prose-doc h3 {
+    @apply mt-8 text-lead font-semibold text-ink-900;
+  }
+
+  .prose-doc p,
+  .prose-doc li {
+    @apply text-body text-ink-700;
+  }
+
+  .prose-doc ul {
+    @apply list-disc space-y-2 pl-6;
+  }
+
+  .prose-doc a {
+    @apply font-semibold text-green-800 underline underline-offset-4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Layout, header and shading (all values come from tokens or the 8 px spacing scale) */
+:root {
+  --gutter: clamp(20px, 4.5vw, 72px);
+  --header-h: calc(var(--spacing) * 18);
+  --header-h-small: calc(var(--spacing) * 15);
+}
+
+@layer base {
+  h1,
+  h2 {
+    word-spacing: 0.2em;
+  }
+
+  main:not(:has(> [data-hero])) {
+    padding-top: var(--header-h);
+  }
+}
+
+@layer components {
+  .container-fluid {
+    margin-inline: auto;
+    width: 100%;
+    max-width: calc(var(--container-page) + 2 * var(--gutter));
+    padding-inline: var(--gutter);
+  }
+
+  .measure-display {
+    max-inline-size: 16ch;
+  }
+
+  /* Layout primitives (components/ui/layout.tsx). From lg each ratio is an explicit two-track grid, and no column is
+     narrower than 20 rem, so text can never fall into a sliver. */
+  .split {
+    display: grid;
+    gap: calc(var(--spacing) * 10);
+  }
+
+  @media (min-width: 64rem) {
+    .split {
+      gap: calc(var(--spacing) * 16);
+    }
+
+    .split-5-7 {
+      grid-template-columns: minmax(20rem, 5fr) minmax(20rem, 7fr);
+    }
+
+    .split-4-8 {
+      grid-template-columns: minmax(20rem, 4fr) minmax(20rem, 8fr);
+    }
+
+    .split-7-5 {
+      grid-template-columns: minmax(20rem, 7fr) minmax(20rem, 5fr);
+    }
+
+    .split-6-6 {
+      grid-template-columns: minmax(20rem, 1fr) minmax(20rem, 1fr);
+    }
+
+    .stack-copy {
+      max-inline-size: max(20rem, 58.333%);
+    }
+  }
+
+  /* SOLUTIONS under PHANELLO in the logo lockup: the end margin cancels the trailing letter space so both lines have the
+     same width (about 151 px at the 21 px size); the top margin is 7 px at 9.6 px. */
+  .logo-sub {
+    margin-block-start: 0.73em;
+    margin-inline-end: -1.04em;
+  }
+
+  /* H1 longer than 36 characters (display-sm size): a wider measure, so it settles on three lines or fewer. */
+  .measure-display-long {
+    max-inline-size: 26ch;
+  }
+
+  /* Wider H1 for pages whose heading is a long sentence (Contact). Declared after .measure-display so it wins. */
+  .measure-display-wide {
+    max-inline-size: 30ch;
+  }
+
+  /* Header bar: logo, nav and action. From lg the nav sits on the true centre of the page, not between logo and action. */
+  .header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--spacing) * 6);
+  }
+
+  @media (min-width: 64rem) {
+    .header-bar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+    }
+  }
+
+  /* Buttons stack at full width on phones and sit side by side from 640 px. */
+  .stack-actions {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 4);
+  }
+
+  .stack-actions > * {
+    width: 100%;
+  }
+
+  @media (min-width: 40rem) {
+    .stack-actions {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .stack-actions > * {
+      width: auto;
+    }
+  }
+
+  /* Matrix glyphs fade out behind the header zone so the logo and nav stay clean. */
+  .matrix-canvas {
+    mask-image: linear-gradient(to bottom, transparent 0, transparent var(--header-h), black calc(var(--header-h) + calc(var(--spacing) * 16)));
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* One viewport tall; the header overlays it. Copy sits just under the header, never more than 96 px past the minimum gap. */
+  .hero-shell {
+    display: flex;
+    min-height: 100svh;
+    flex-direction: column;
+  }
+
+  .hero-inner {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding-top: calc(var(--header-h) + clamp(calc(var(--spacing) * 12), 9svh, calc(var(--spacing) * 32)));
+    padding-bottom: calc(var(--spacing) * 8);
+  }
+
+  .under-header {
+    padding-top: calc(var(--header-h) + calc(var(--spacing) * 12));
+    padding-bottom: calc(var(--spacing) * 24);
+  }
+
+  .under-header[data-compact] {
+    padding-bottom: calc(var(--spacing) * 12);
+  }
+
+  /* Background art. The art is sized and placed on purpose, never left to a centred crop, which drops the green wedge from
+     short header bands and puts it behind the headline on a phone.
+     - Below lg the art is the calm page art, 960 px wide and pinned to the top right, so only the corner wedge peeks out
+       under the header and never reaches the text.
+     - From xl the home hero uses the full hero art, pinned to the left and sized so the lit wedge always starts to the
+       right of the headline (the width is at least 199 % of the viewport height, which is 112 % of the 16:9 art).
+     - From lg page art and closing bands sit in a 16:9 frame and carry a navy scrim over the left 60 %, which dims the thin
+       green lines where the text is. The base colour matches the dark foot of the art, so any gap is not visible. */
+  .art-hero,
+  .art-page,
+  .art-cta {
+    --art-base: color-mix(in srgb, var(--color-ink-900) 40%, black);
+    background-color: var(--art-base);
+    /* The first layer fades the foot of the 960 x 540 art into the base colour, so no seam shows where it ends. */
+    background-image: linear-gradient(to bottom, transparent 65%, var(--art-base) 100%), url('/brand/page-bg.svg');
+    background-repeat: no-repeat;
+    background-size: 100% 540px, 960px auto;
+    background-position: 0 0, 100% 0;
+  }
+
+  @media (min-width: 64rem) {
+    .art-hero,
+    .art-page,
+    .art-cta {
+      background-image:
+        linear-gradient(90deg, color-mix(in srgb, var(--color-ink-900) 65%, transparent) 0%, transparent 60%),
+        url('/brand/page-bg.svg');
+      background-size: 100% 100%, cover;
+    }
+
+    .art-page,
+    .art-hero {
+      background-position: 0 0, 50% 0;
+    }
+
+    .art-cta {
+      background-position: 0 0, 100% 0;
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .art-hero {
+      background-image:
+        linear-gradient(90deg, color-mix(in srgb, var(--color-ink-900) 65%, transparent) 0%, transparent 60%),
+        url('/brand/hero-bg.svg');
+      background-size: 100% 100%, max(100%, 199svh) auto;
+      background-position: 0 0, 0 0;
+    }
+  }
+
+  /* Background shading for dark surfaces that do not carry the background art (feature band, mega menu, error pages).
+     The text side stays between Ink 800 and Ink 900 so body text keeps at least 7:1; the green lift sits on the right. */
+  .shade-ink {
+    background-image:
+      radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--color-green-900) 46%, transparent), transparent 62%),
+      linear-gradient(196deg, var(--color-ink-800) 0%, var(--color-ink-900) 60%, var(--color-ink-900) 100%);
+  }
+
+  .shade-mist {
+    background-image: linear-gradient(180deg, var(--color-mist) 0%, color-mix(in srgb, var(--color-green-100) 40%, var(--color-mist)) 100%);
+  }
+
+  .site-header {
+    height: var(--header-h);
+    background: var(--color-ink-900);
+    border-bottom: 1px solid var(--color-ink-700);
+    transition:
+      height 250ms var(--ease-standard),
+      background-color 250ms var(--ease-standard),
+      border-color 250ms var(--ease-standard);
+  }
+
+  .site-header[data-scrolled="true"] {
+    --header-h: var(--header-h-small);
+  }
+
+  /* Over the background art the header carries a navy scrim (90 % at the top, 75 % at the bottom), so white text stays above 4.5:1 even where a green line or the lit wedge passes behind it. */
+  body:has(main > [data-hero]) .site-header[data-scrolled="false"]:not([data-menu="true"]):not(:has(.mega[data-open="true"])) {
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--color-ink-900) 90%, transparent), color-mix(in srgb, var(--color-ink-900) 75%, transparent));
+    border-bottom-color: transparent;
+  }
+
+  .mega {
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(calc(var(--spacing) * -2));
+    transition:
+      opacity 150ms var(--ease-standard),
+      transform 150ms var(--ease-standard),
+      visibility 0s linear 150ms;
+  }
+
+  .mega[data-open="true"] {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 150ms var(--ease-standard),
+      transform 150ms var(--ease-standard),
+      visibility 0s;
+  }
+}
+
+/* The fixed mobile contact bar hides while a field has focus (keyboard open) or the enquiry drawer is open. Focused
+   controls scroll clear of it. */
+html[data-keyboard] .mobile-contact-bar,
+body:has([data-drawer]) .mobile-contact-bar {
+  display: none;
+}
+
+html {
+  scroll-padding-bottom: 6rem;
+}
